@@ -1,0 +1,33 @@
+# ソースファイル（distのみ配布）
+src/
+
+# 開発用ルール
+.cursor/
+
+# 環境変数サンプル
+.env
+env.sample
+
+# ビルド成果物（パッケージ自体）
+*.tgz
+
+# 開発用設定
+tsconfig.json
+
+# テスト・開発スクリプト
+dist/fetch-motion-sensor-pro.js
+
+# Git関連
+.git/
+.gitignore
+
+# エディタ設定
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# ログ
+*.log
+npm-debug.log*
+

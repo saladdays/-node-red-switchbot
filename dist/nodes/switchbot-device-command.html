@@ -1,0 +1,517 @@
+<!-- SwitchBot Device Command Node UI -->
+<!-- Progressive Disclosure パターンで再設計 -->
+
+<script type="text/html" data-template-name="switchbot-device-command">
+    <!-- ❶ 認証セクション -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> 名前</label>
+        <input type="text" id="node-input-name" placeholder="任意の名前">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-account"><i class="fa fa-key"></i> 認証</label>
+        <input type="text" id="node-input-account">
+    </div>
+
+    <hr>
+
+    <!-- ❷ デバイス選択セクション -->
+    <div class="form-row">
+        <label><i class="fa fa-microchip"></i> デバイス</label>
+        <div style="display: inline-flex; align-items: center; width: 70%;">
+            <button type="button" id="switchbot-cmd-refresh" class="red-ui-button" 
+                    style="padding: 4px 8px; margin-right: 6px;" title="デバイス一覧を更新">
+                <i class="fa fa-refresh"></i>
+            </button>
+            <select id="switchbot-cmd-device-select" style="flex: 1;">
+                <option value="">(認証設定後、🔄で取得)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- デバイス情報（選択後に表示） -->
+    <div class="form-row" id="switchbot-cmd-device-info" style="display: none;">
+        <label></label>
+        <span style="color: #666; font-size: 11px;">
+            <i class="fa fa-info-circle"></i> 
+            ID: <code id="switchbot-cmd-device-id-display">-</code>
+            &nbsp;|&nbsp;
+            Type: <code id="switchbot-cmd-device-type-display">-</code>
+        </span>
+    </div>
+
+    <!-- ステータスメッセージ -->
+    <div class="form-row" id="switchbot-cmd-status" style="display: none;">
+        <label></label>
+        <span id="switchbot-cmd-status-text" style="font-size: 12px;"></span>
+    </div>
+
+    <!-- 隠しフィールド -->
+    <input type="hidden" id="node-input-deviceId">
+    <input type="hidden" id="node-input-deviceType">
+
+    <hr>
+
+    <!-- ❸ コマンド設定セクション（対応デバイス選択後に表示） -->
+    <div id="switchbot-cmd-command-section" style="display: none;">
+        <div class="form-row">
+            <label for="node-input-command"><i class="fa fa-terminal"></i> コマンド</label>
+            <select id="node-input-command" style="width: 70%;"></select>
+        </div>
+
+        <!-- カスタムコマンド入力（必要時のみ表示） -->
+        <div class="form-row" id="switchbot-cmd-custom-row" style="display: none;">
+            <label for="node-input-customCommand"><i class="fa fa-keyboard-o"></i> カスタム</label>
+            <input type="text" id="node-input-customCommand" placeholder="コマンド名を入力" style="width: 70%;">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-parameter"><i class="fa fa-sliders"></i> パラメータ</label>
+            <input type="text" id="node-input-parameter" placeholder="default" style="width: 70%;">
+        </div>
+
+        <!-- パラメータヒント -->
+        <div class="form-row" id="switchbot-cmd-param-hint" style="display: none;">
+            <label></label>
+            <div id="switchbot-cmd-param-hint-text" 
+                 style="color: #666; font-size: 11px; background: #f5f5f5; padding: 8px; border-radius: 4px; width: 70%; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-commandType"><i class="fa fa-cog"></i> タイプ</label>
+            <select id="node-input-commandType" style="width: 70%;">
+                <option value="command">command（標準コマンド）</option>
+                <option value="customize">customize（カスタムボタン）</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 非対応デバイスメッセージ -->
+    <div id="switchbot-cmd-unsupported" style="display: none;">
+        <div class="form-row">
+            <label></label>
+            <div style="color: #888; background: #fff8e1; padding: 12px; border-radius: 4px; border-left: 3px solid #ffc107; width: 70%; box-sizing: border-box;">
+                <i class="fa fa-info-circle"></i> 
+                <strong>このデバイスはコマンド送信に対応していません。</strong><br>
+                <span style="font-size: 11px;">ステータス取得には「SB Status」ノードを使用してください。</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- デバイス未選択メッセージ -->
+    <div id="switchbot-cmd-empty" style="display: block;">
+        <div class="form-row">
+            <label></label>
+            <div style="color: #888; font-size: 12px;">
+                <i class="fa fa-arrow-up"></i> デバイスを選択するとコマンド設定が表示されます
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- ヘルプテキスト -->
+<script type="text/html" data-help-name="switchbot-device-command">
+    <p>SwitchBotデバイスにコマンドを送信します。</p>
+
+    <h3>使い方</h3>
+    <ol>
+        <li>認証情報（SwitchBot API）を設定</li>
+        <li>🔄ボタンでデバイス一覧を取得</li>
+        <li>デバイスを選択</li>
+        <li>コマンドとパラメータを設定</li>
+    </ol>
+
+    <h3>動的入力</h3>
+    <p><code>msg.payload</code>でコマンドを動的に指定できます：</p>
+    <pre>{
+  "deviceId": "DEVICE_ID",
+  "command": "turnOn",
+  "parameter": "default"
+}</pre>
+
+    <h3>エアコン制御</h3>
+    <p>コマンド: <code>setAll</code></p>
+    <p>パラメータ: <code>温度,モード,風量,電源</code></p>
+    <ul>
+        <li>例: <code>26,2,1,on</code> → 26℃、冷房、風量自動、ON</li>
+        <li>モード: 1=自動, 2=冷房, 3=除湿, 4=送風, 5=暖房</li>
+        <li>風量: 1=自動, 2=弱, 3=中, 4=強</li>
+    </ul>
+</script>
+
+<!-- ノード登録 -->
+<script type="text/javascript">
+(function() {
+    // デバイスタイプ → コマンド定義
+    var DEVICE_COMMANDS = {
+        // 物理デバイス
+        'Bot': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'press', label: '押す', param: 'default' }
+        ],
+        'Plug': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'toggle', label: '切り替え', param: 'default' }
+        ],
+        'Plug Mini (JP)': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'toggle', label: '切り替え', param: 'default' }
+        ],
+        'Plug Mini (US)': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'toggle', label: '切り替え', param: 'default' }
+        ],
+        'Curtain': [
+            { value: 'turnOn', label: '開く', param: 'default' },
+            { value: 'turnOff', label: '閉じる', param: 'default' },
+            { value: 'setPosition', label: '位置を指定', param: '0,ff,50', hint: '形式: index,mode,position (0~100)' },
+            { value: 'pause', label: '一時停止', param: 'default' }
+        ],
+        'Curtain3': [
+            { value: 'turnOn', label: '開く', param: 'default' },
+            { value: 'turnOff', label: '閉じる', param: 'default' },
+            { value: 'setPosition', label: '位置を指定', param: '0,ff,50', hint: '形式: index,mode,position (0~100)' },
+            { value: 'pause', label: '一時停止', param: 'default' }
+        ],
+        'Lock': [
+            { value: 'lock', label: '施錠', param: 'default' },
+            { value: 'unlock', label: '解錠', param: 'default' }
+        ],
+        'Lock Pro': [
+            { value: 'lock', label: '施錠', param: 'default' },
+            { value: 'unlock', label: '解錠', param: 'default' }
+        ],
+        'Color Bulb': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'toggle', label: '切り替え', param: 'default' },
+            { value: 'setBrightness', label: '明るさ', param: '50', hint: '1~100 の数値' },
+            { value: 'setColor', label: '色', param: '255:100:50', hint: '形式: R:G:B (各0~255)' }
+        ],
+        'Strip Light': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'toggle', label: '切り替え', param: 'default' },
+            { value: 'setBrightness', label: '明るさ', param: '50', hint: '1~100 の数値' }
+        ],
+        'Humidifier': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'setMode', label: 'モード設定', param: 'auto', hint: 'auto / 101~103 / humidifierDefault' }
+        ],
+        // 赤外線リモコン
+        'Air Conditioner': [
+            { value: 'setAll', label: '全設定', param: '26,2,1,on', 
+              hint: '形式: 温度,モード,風量,電源<br>モード: 1=自動, 2=冷房, 3=除湿, 4=送風, 5=暖房<br>風量: 1=自動, 2=弱, 3=中, 4=強<br>電源: on / off' },
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' }
+        ],
+        'TV': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'SetChannel', label: 'チャンネル', param: '1', hint: 'チャンネル番号' },
+            { value: 'volumeAdd', label: '音量 +', param: 'default' },
+            { value: 'volumeSub', label: '音量 -', param: 'default' },
+            { value: 'channelAdd', label: 'CH +', param: 'default' },
+            { value: 'channelSub', label: 'CH -', param: 'default' }
+        ],
+        'Light': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'brightnessUp', label: '明るく', param: 'default' },
+            { value: 'brightnessDown', label: '暗く', param: 'default' }
+        ],
+        'Fan': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: 'swing', label: '首振り', param: 'default' },
+            { value: 'lowSpeed', label: '風量: 弱', param: 'default' },
+            { value: 'middleSpeed', label: '風量: 中', param: 'default' },
+            { value: 'highSpeed', label: '風量: 強', param: 'default' }
+        ],
+        // その他IRデバイス
+        '_ir_default': [
+            { value: 'turnOn', label: 'ON にする', param: 'default' },
+            { value: 'turnOff', label: 'OFF にする', param: 'default' },
+            { value: '_custom', label: 'カスタムコマンド...', param: 'default' }
+        ],
+        // コマンド非対応
+        '_unsupported': []
+    };
+
+    // コマンド非対応デバイスタイプ（センサー系・Hub系・読み取り専用）
+    var UNSUPPORTED_TYPES = [
+        // 温湿度計・環境センサー
+        'Meter', 'Meter Plus', 'MeterPlus', 'MeterPro', 'Meter Pro',
+        'MeterPro(CO2)', 'Meter Pro CO2', 'Outdoor Meter', 'WoIOSensor',
+        // 人感・開閉・水漏れセンサー
+        'Motion Sensor', 'Presence Sensor', 'Contact Sensor', 
+        'Water Leak Detector', 'Water Detector',
+        // Hub系（IRリモコンの親機、制御対象ではない）
+        'Hub', 'Hub Plus', 'Hub Mini', 'Hub 2', 'Hub 3',
+        // リモコン・キーパッド（読み取り専用）
+        'Remote', 'Keypad', 'Keypad Touch', 'Keypad Vision', 'Keypad Vision Pro',
+        // カメラ系（別途ストリーミングAPI）
+        'Indoor Cam', 'Pan/Tilt Cam', 'Pan/Tilt Cam 2K',
+        // その他読み取り専用
+        'Video Doorbell'
+    ];
+
+    function getCommandsForDevice(deviceType, isInfrared) {
+        if (UNSUPPORTED_TYPES.indexOf(deviceType) !== -1) {
+            return DEVICE_COMMANDS['_unsupported'];
+        }
+        if (DEVICE_COMMANDS[deviceType]) {
+            return DEVICE_COMMANDS[deviceType];
+        }
+        if (isInfrared) {
+            return DEVICE_COMMANDS['_ir_default'];
+        }
+        return DEVICE_COMMANDS['_ir_default']; // 未知のデバイスはIRデフォルト
+    }
+
+    RED.nodes.registerType('switchbot-device-command', {
+        category: 'SwitchBot Custom',
+        color: '#FF6B6B',
+        defaults: {
+            name: { value: '' },
+            account: { value: '', type: 'switchbot-credentials' },
+            deviceId: { value: '' },
+            deviceType: { value: '' },
+            command: { value: '' },
+            customCommand: { value: '' },
+            parameter: { value: 'default' },
+            commandType: { value: 'command' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-paper-plane',
+        label: function() {
+            if (this.name) return this.name;
+            if (this.command && this.command !== '_custom') return 'SB: ' + this.command;
+            if (this.customCommand) return 'SB: ' + this.customCommand;
+            return 'SB Command';
+        },
+        paletteLabel: 'SB Command',
+        oneditprepare: function() {
+            var node = this;
+            var deviceCache = [];
+
+            // UI要素
+            var $deviceSelect = $('#switchbot-cmd-device-select');
+            var $commandSelect = $('#node-input-command');
+            var $paramInput = $('#node-input-parameter');
+            var $statusDiv = $('#switchbot-cmd-status');
+            var $statusText = $('#switchbot-cmd-status-text');
+            var $deviceInfo = $('#switchbot-cmd-device-info');
+            var $commandSection = $('#switchbot-cmd-command-section');
+            var $unsupportedMsg = $('#switchbot-cmd-unsupported');
+            var $emptyMsg = $('#switchbot-cmd-empty');
+            var $customRow = $('#switchbot-cmd-custom-row');
+            var $paramHint = $('#switchbot-cmd-param-hint');
+            var $paramHintText = $('#switchbot-cmd-param-hint-text');
+
+            // ステータス表示
+            function showStatus(msg, isError) {
+                $statusText.text(msg).css('color', isError ? '#c00' : '#080');
+                $statusDiv.show();
+            }
+            function hideStatus() {
+                $statusDiv.hide();
+            }
+
+            // セクション表示制御
+            function showCommandSection() {
+                $commandSection.show();
+                $unsupportedMsg.hide();
+                $emptyMsg.hide();
+            }
+            function showUnsupportedMsg() {
+                $commandSection.hide();
+                $unsupportedMsg.show();
+                $emptyMsg.hide();
+            }
+            function showEmptyMsg() {
+                $commandSection.hide();
+                $unsupportedMsg.hide();
+                $emptyMsg.show();
+            }
+
+            // コマンド選択肢を更新
+            function updateCommandOptions(deviceType, isInfrared) {
+                var commands = getCommandsForDevice(deviceType, isInfrared);
+                var currentVal = node.command || '';
+
+                $commandSelect.empty();
+
+                if (commands.length === 0) {
+                    showUnsupportedMsg();
+                    return;
+                }
+
+                showCommandSection();
+
+                commands.forEach(function(cmd) {
+                    var $opt = $('<option>').val(cmd.value).text(cmd.label);
+                    $opt.data('param', cmd.param || 'default');
+                    $opt.data('hint', cmd.hint || '');
+                    $commandSelect.append($opt);
+                });
+
+                // 保存値を復元
+                if (currentVal && $commandSelect.find('option[value="' + currentVal + '"]').length > 0) {
+                    $commandSelect.val(currentVal);
+                }
+
+                updateParamHint();
+                updateCustomRow();
+            }
+
+            // パラメータヒント更新
+            function updateParamHint() {
+                var $selected = $commandSelect.find(':selected');
+                var hint = $selected.data('hint');
+                if (hint) {
+                    $paramHintText.html(hint);
+                    $paramHint.show();
+                } else {
+                    $paramHint.hide();
+                }
+            }
+
+            // カスタムコマンド行の表示制御
+            function updateCustomRow() {
+                if ($commandSelect.val() === '_custom') {
+                    $customRow.show();
+                } else {
+                    $customRow.hide();
+                }
+            }
+
+            // デバイス情報表示
+            function showDeviceInfo(deviceId, deviceType) {
+                $('#switchbot-cmd-device-id-display').text(deviceId);
+                $('#switchbot-cmd-device-type-display').text(deviceType);
+                $deviceInfo.show();
+            }
+
+            // デバイス選択時
+            $deviceSelect.change(function() {
+                var val = $(this).val();
+                if (!val) {
+                    $deviceInfo.hide();
+                    showEmptyMsg();
+                    $('#node-input-deviceId').val('');
+                    $('#node-input-deviceType').val('');
+                    return;
+                }
+
+                var parts = val.split('|');
+                var deviceId = parts[0];
+                var deviceType = parts[1] || '';
+                var isInfrared = parts[2] === 'true';
+
+                $('#node-input-deviceId').val(deviceId);
+                $('#node-input-deviceType').val(deviceType);
+                showDeviceInfo(deviceId, deviceType);
+                updateCommandOptions(deviceType, isInfrared);
+                hideStatus();
+            });
+
+            // コマンド変更時
+            $commandSelect.change(function() {
+                updateParamHint();
+                updateCustomRow();
+
+                // デフォルトパラメータをセット（空の場合のみ）
+                var $selected = $(this).find(':selected');
+                var defaultParam = $selected.data('param');
+                if (!$paramInput.val() || $paramInput.val() === 'default') {
+                    $paramInput.val(defaultParam || 'default');
+                }
+            });
+
+            // デバイス取得ボタン
+            $('#switchbot-cmd-refresh').click(function() {
+                var accountId = $('#node-input-account').val() || '';
+                if (!accountId) {
+                    showStatus('先に認証情報を設定してください', true);
+                    return;
+                }
+
+                showStatus('デバイス一覧を取得中...', false);
+                var adminRoot = (RED.settings.httpAdminRoot || '').replace(/\/$/, '');
+
+                $.ajax({
+                    url: adminRoot + '/switchbot-device-command/devices',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ accountId: accountId }),
+                    success: function(data) {
+                        $deviceSelect.empty().append('<option value="">(デバイスを選択)</option>');
+                        deviceCache = data.devices || [];
+
+                        if (deviceCache.length === 0) {
+                            showStatus('デバイスが見つかりませんでした', true);
+                            return;
+                        }
+
+                        deviceCache.forEach(function(d) {
+                            var label = d.deviceName;
+                            var type = d.remoteType || d.deviceType;
+                            if (type) label += ' (' + type + ')';
+                            if (d.isInfrared) label += ' [IR]';
+
+                            var val = d.deviceId + '|' + type + '|' + d.isInfrared;
+                            $deviceSelect.append($('<option>').val(val).text(label));
+                        });
+
+                        showStatus(deviceCache.length + ' 件のデバイスを取得しました', false);
+                        setTimeout(hideStatus, 2000);
+
+                        // 既存の選択を復元
+                        if (node.deviceId) {
+                            var match = deviceCache.find(function(d) { return d.deviceId === node.deviceId; });
+                            if (match) {
+                                var type = match.remoteType || match.deviceType;
+                                var val = match.deviceId + '|' + type + '|' + match.isInfrared;
+                                $deviceSelect.val(val).trigger('change');
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        var msg = 'デバイスの取得に失敗しました';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            msg = xhr.responseJSON.error;
+                        }
+                        showStatus(msg, true);
+                    }
+                });
+            });
+
+            // 初期化: 既存値がある場合は表示
+            if (node.deviceId && node.deviceType) {
+                showDeviceInfo(node.deviceId, node.deviceType);
+                updateCommandOptions(node.deviceType, false);
+                $deviceSelect.append($('<option>').val(node.deviceId + '|' + node.deviceType + '|false')
+                    .text('(保存済み: ' + node.deviceId.substring(0, 8) + '...)').prop('selected', true));
+            }
+        },
+        oneditsave: function() {
+            var command = $('#node-input-command').val();
+            if (command === '_custom') {
+                this.command = $('#node-input-customCommand').val() || '';
+                this.commandType = 'customize';
+            } else {
+                this.command = command;
+            }
+            this.deviceType = $('#node-input-deviceType').val() || '';
+        }
+    });
+})();
+</script>

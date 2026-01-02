@@ -1,0 +1,74 @@
+---
+description: SwitchBotデバイスタイプの定期的な確認・更新ルールを定義します。
+globs:
+  - src/nodes/switchbot-device-command.html
+  - src/nodes/switchbot-device-command.ts
+alwaysApply: false
+---
+
+# デバイスタイプ メンテナンスポリシー
+
+## 背景
+
+SwitchBotは定期的に新製品をリリースするため、以下のリストを最新に保つ必要がある：
+
+1. **DEVICE_COMMANDS**: デバイスタイプ → 使用可能コマンドのマッピング
+2. **UNSUPPORTED_TYPES**: コマンド送信非対応デバイスのリスト
+
+## 確認タイミング
+
+- デバイス関連のノードを修正する前
+- ユーザーから「未知のデバイスタイプ」の報告があった時
+- 四半期に1回（定期メンテナンス）
+
+## 確認手順
+
+### 1. 公式APIドキュメントを参照
+
+```
+https://github.com/OpenWonderLabs/SwitchBotAPI
+```
+
+README.mdの以下セクションを確認：
+- "Get device list" → デバイスタイプ一覧
+- "Send device control commands" → コマンド対応表
+- "Webhook" → イベント対応デバイス
+
+### 2. デバイスカテゴリの分類
+
+| カテゴリ | コマンド対応 | 例 |
+|---------|-------------|-----|
+| アクチュエータ | ✅ 対応 | Bot, Plug, Curtain, Lock |
+| 照明 | ✅ 対応 | Color Bulb, Strip Light, Ceiling Light |
+| 空調家電 | ✅ 対応 | Humidifier, Fan |
+| IRリモコン | ✅ 対応 | Air Conditioner, TV, Light (IR) |
+| センサー | ❌ 非対応 | Meter, Motion Sensor, Contact Sensor |
+| Hub | ❌ 非対応 | Hub, Hub Mini, Hub 2, Hub 3 |
+| カメラ | ❌ 非対応 | Indoor Cam, Pan/Tilt Cam |
+| 入力デバイス | ❌ 非対応 | Keypad, Remote |
+
+### 3. 更新箇所
+
+`src/nodes/switchbot-device-command.html` 内の：
+
+```javascript
+// コマンド対応デバイス
+var DEVICE_COMMANDS = {
+    'NewDeviceType': [
+        { value: 'command', label: 'ラベル', param: 'default' }
+    ],
+    // ...
+};
+
+// コマンド非対応デバイス
+var UNSUPPORTED_TYPES = [
+    'NewSensorType',
+    // ...
+];
+```
+
+## 注意事項
+
+- デバイスタイプ名はAPIレスポンスの `deviceType` または `remoteType` と完全一致させる
+- スペースの有無に注意（例: `Meter Plus` vs `MeterPlus`）
+- 新製品は両方のパターンを登録しておくと安全
