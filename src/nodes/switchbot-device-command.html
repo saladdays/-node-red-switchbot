@@ -293,11 +293,11 @@
         icon: 'font-awesome/fa-paper-plane',
         label: function() {
             if (this.name) return this.name;
-            if (this.command && this.command !== '_custom') return 'SB: ' + this.command;
-            if (this.customCommand) return 'SB: ' + this.customCommand;
-            return 'SB Command';
+            if (this.command && this.command !== '_custom') return 'SwitchBot: ' + this.command;
+            if (this.customCommand) return 'SwitchBot: ' + this.customCommand;
+            return 'SwitchBot Command';
         },
-        paletteLabel: 'SB Command',
+        paletteLabel: 'SwitchBot Command',
         oneditprepare: function() {
             var node = this;
             var deviceCache = [];
