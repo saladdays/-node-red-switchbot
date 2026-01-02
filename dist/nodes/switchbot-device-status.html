@@ -1,35 +1,34 @@
 <!-- SwitchBot Device Status Node UI -->
-<!-- Progressive Disclosure パターン -->
 
 <script type="text/html" data-template-name="switchbot-device-status">
-    <!-- ❶ 基本設定 -->
+    <!-- Basic Settings -->
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> 名前</label>
-        <input type="text" id="node-input-name" placeholder="任意の名前">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Optional name">
     </div>
 
     <div class="form-row">
-        <label for="node-input-account"><i class="fa fa-key"></i> 認証</label>
+        <label for="node-input-account"><i class="fa fa-key"></i> Account</label>
         <input type="text" id="node-input-account">
     </div>
 
     <hr>
 
-    <!-- ❷ デバイス選択 -->
+    <!-- Device Selection -->
     <div class="form-row">
-        <label><i class="fa fa-microchip"></i> デバイス</label>
+        <label><i class="fa fa-microchip"></i> Device</label>
         <div style="display: inline-flex; align-items: center; width: 70%;">
             <button type="button" id="switchbot-status-refresh" class="red-ui-button" 
-                    style="padding: 4px 8px; margin-right: 6px;" title="デバイス一覧を更新">
+                    style="padding: 4px 8px; margin-right: 6px;" title="Refresh device list">
                 <i class="fa fa-refresh"></i>
             </button>
             <select id="switchbot-status-device-select" style="flex: 1;">
-                <option value="">(認証設定後、🔄で取得)</option>
+                <option value="">(Set account, then click 🔄)</option>
             </select>
         </div>
     </div>
 
-    <!-- デバイス情報（選択後に表示） -->
+    <!-- Device Info (shown after selection) -->
     <div class="form-row" id="switchbot-status-device-info" style="display: none;">
         <label></label>
         <span style="color: #666; font-size: 11px;">
@@ -40,47 +39,47 @@
         </span>
     </div>
 
-    <!-- ステータスメッセージ -->
+    <!-- Status Message -->
     <div class="form-row" id="switchbot-status-message-row" style="display: none;">
         <label></label>
         <span id="switchbot-status-message" style="font-size: 12px;"></span>
     </div>
 
-    <!-- 隠しフィールド -->
+    <!-- Hidden Fields -->
     <input type="hidden" id="node-input-deviceId">
     <input type="hidden" id="node-input-deviceType">
     <input type="hidden" id="node-input-deviceName">
 </script>
 
 <script type="text/html" data-help-name="switchbot-device-status">
-    <p>SwitchBotデバイスのステータスを取得するノード。</p>
+    <p>Get status from SwitchBot devices.</p>
 
-    <h3>使い方</h3>
+    <h3>Usage</h3>
     <ol>
-        <li>認証情報（SwitchBot API）を設定</li>
-        <li>🔄ボタンでデバイス一覧を取得</li>
-        <li>デバイスを選択</li>
-        <li>Injectノード等からトリガー</li>
+        <li>Configure SwitchBot API credentials</li>
+        <li>Click 🔄 to fetch device list</li>
+        <li>Select a device</li>
+        <li>Trigger with Inject node</li>
     </ol>
 
-    <h3>対応デバイス</h3>
+    <h3>Supported Devices</h3>
     <ul>
-        <li>Presence Sensor / Motion Sensor（detected, lightLevel）</li>
-        <li>CO2センサー / 温湿度計（co2, temperature, humidity）</li>
-        <li>カーテン（calibrate, moving, slidePosition）</li>
-        <li>ロボット掃除機（workingStatus, onlineStatus）</li>
-        <li>プラグ（power, voltage, electricCurrent）</li>
+        <li>Presence Sensor / Motion Sensor (detected, lightLevel)</li>
+        <li>CO2 Sensor / Meter (co2, temperature, humidity)</li>
+        <li>Curtain (calibrate, moving, slidePosition)</li>
+        <li>Robot Vacuum (workingStatus, onlineStatus)</li>
+        <li>Plug (power, voltage, electricCurrent)</li>
     </ul>
 
-    <h3>出力</h3>
-    <p>デバイスタイプに応じた固有フィールドのみ出力されます。</p>
-    <p><code>raw</code>フィールドにはAPIレスポンス全体が含まれます。</p>
+    <h3>Output</h3>
+    <p>Only device-specific fields are included in the output.</p>
+    <p>The <code>raw</code> field contains the full API response.</p>
 </script>
 
 <script type="text/javascript">
 (function() {
     RED.nodes.registerType('switchbot-device-status', {
-        category: 'SwitchBot Custom',
+        category: 'SwitchBot',
         color: '#87CEEB',
         defaults: {
             name: { value: '' },
@@ -93,7 +92,6 @@
         outputs: 1,
         icon: 'font-awesome/fa-thermometer-half',
         label: function () {
-            // デバイス名があればそれを表示
             if (this.name) return this.name;
             if (this.deviceName) return this.deviceName;
             return 'SwitchBot Status';
@@ -123,7 +121,6 @@
                 $deviceInfo.show();
             }
 
-            // デバイス選択時
             $deviceSelect.change(function() {
                 var val = $(this).val();
                 if (!val) {
@@ -146,15 +143,14 @@
                 hideMessage();
             });
 
-            // デバイス取得ボタン
             $('#switchbot-status-refresh').click(function() {
                 var accountId = $('#node-input-account').val() || '';
                 if (!accountId) {
-                    showMessage('先に認証情報を設定してください', true);
+                    showMessage('Please configure account first', true);
                     return;
                 }
 
-                showMessage('デバイス一覧を取得中...', false);
+                showMessage('Fetching devices...', false);
                 var adminRoot = (RED.settings.httpAdminRoot || '').replace(/\/$/, '');
 
                 $.ajax({
@@ -164,15 +160,15 @@
                     data: JSON.stringify({ accountId: accountId }),
                     success: function(json) {
                         if (!json.ok) {
-                            showMessage(json.message || '取得に失敗しました', true);
+                            showMessage(json.message || 'Failed to fetch', true);
                             return;
                         }
 
-                        $deviceSelect.empty().append('<option value="">(デバイスを選択)</option>');
+                        $deviceSelect.empty().append('<option value="">(Select a device)</option>');
                         deviceCache = json.devices || [];
 
                         if (deviceCache.length === 0) {
-                            showMessage('デバイスが見つかりませんでした', true);
+                            showMessage('No devices found', true);
                             return;
                         }
 
@@ -182,10 +178,9 @@
                             $deviceSelect.append($('<option>').val(val).text(label));
                         });
 
-                        showMessage(deviceCache.length + ' 件のデバイスを取得しました', false);
+                        showMessage(deviceCache.length + ' device(s) found', false);
                         setTimeout(hideMessage, 2000);
 
-                        // 既存の選択を復元
                         if (node.deviceId) {
                             var match = deviceCache.find(function(d) { return d.deviceId === node.deviceId; });
                             if (match) {
@@ -195,21 +190,19 @@
                         }
                     },
                     error: function(xhr, status, err) {
-                        showMessage('エラー: ' + (err || status || 'unknown'), true);
+                        showMessage('Error: ' + (err || status || 'unknown'), true);
                     }
                 });
             });
 
-            // 初期化: 既存値がある場合は表示
             if (node.deviceId) {
                 var displayName = node.deviceName || node.deviceId.substring(0, 8) + '...';
                 var displayType = node.deviceType || '-';
                 showDeviceInfo(node.deviceId, displayType, displayName);
                 
-                // セレクトにも仮の選択肢を追加
                 var val = node.deviceId + '|' + node.deviceType + '|' + node.deviceName;
                 $deviceSelect.append($('<option>').val(val)
-                    .text('(保存済み: ' + displayName + ')').prop('selected', true));
+                    .text('(Saved: ' + displayName + ')').prop('selected', true));
             }
         },
         oneditsave: function() {

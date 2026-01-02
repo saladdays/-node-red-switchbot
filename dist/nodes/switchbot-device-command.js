@@ -25,8 +25,8 @@ function registerSwitchBotDeviceCommandNode(RED) {
                 // 認証情報を解決する
                 const credentials = resolveCredentials(credentialsNode, config);
                 if (!credentials.token || !credentials.secret) {
-                    this.error('Token/Secretが設定されていません');
-                    this.status({ fill: 'red', shape: 'ring', text: '認証エラー' });
+                    this.error('Token/Secret not configured');
+                    this.status({ fill: 'red', shape: 'ring', text: 'auth error' });
                     done();
                     return;
                 }
@@ -35,16 +35,16 @@ function registerSwitchBotDeviceCommandNode(RED) {
                 // デバイスID（msg.payload優先、なければ設定値）
                 const deviceId = payload.deviceId || config.deviceId;
                 if (!deviceId) {
-                    this.error('Device IDが指定されていません');
-                    this.status({ fill: 'red', shape: 'ring', text: 'Device ID未設定' });
+                    this.error('Device ID not specified');
+                    this.status({ fill: 'red', shape: 'ring', text: 'no device' });
                     done();
                     return;
                 }
                 // コマンド（msg.payload優先、なければ設定値）
                 const command = payload.command || config.command;
                 if (!command) {
-                    this.error('Commandが指定されていません');
-                    this.status({ fill: 'red', shape: 'ring', text: 'Command未設定' });
+                    this.error('Command not specified');
+                    this.status({ fill: 'red', shape: 'ring', text: 'no command' });
                     done();
                     return;
                 }
@@ -53,7 +53,7 @@ function registerSwitchBotDeviceCommandNode(RED) {
                 // コマンドタイプ（msg.payload優先、なければ設定値、デフォルトは'command'）
                 const commandType = payload.commandType || config.commandType || 'command';
                 // 処理中ステータスを表示
-                this.status({ fill: 'blue', shape: 'dot', text: '送信中...' });
+                this.status({ fill: 'blue', shape: 'dot', text: 'sending...' });
                 // SwitchBot APIクライアントを生成してコマンド送信
                 const client = new switchbotClient_1.SwitchBotClient(credentials.token, credentials.secret);
                 const result = await client.sendCommand(deviceId, command, parameter, commandType);
@@ -72,7 +72,7 @@ function registerSwitchBotDeviceCommandNode(RED) {
                 };
                 // 成功/失敗に応じたステータス表示
                 if (result.statusCode === 100) {
-                    this.status({ fill: 'green', shape: 'dot', text: `成功: ${command}` });
+                    this.status({ fill: 'green', shape: 'dot', text: `ok: ${command}` });
                 }
                 else {
                     this.status({ fill: 'yellow', shape: 'ring', text: `${result.message}` });
@@ -84,8 +84,8 @@ function registerSwitchBotDeviceCommandNode(RED) {
             catch (error) {
                 // エラーハンドリング
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                this.error(`コマンド送信エラー: ${errorMessage}`);
-                this.status({ fill: 'red', shape: 'ring', text: 'エラー' });
+                this.error(`Command error: ${errorMessage}`);
+                this.status({ fill: 'red', shape: 'ring', text: 'error' });
                 done(error instanceof Error ? error : new Error(errorMessage));
             }
         });
@@ -117,7 +117,7 @@ function registerSwitchBotDeviceCommandNode(RED) {
             }
             // 認証情報がない場合はエラー
             if (!token || !secret) {
-                res.status(400).json({ error: 'Token/Secretが設定されていません。Config Nodeをデプロイしてください。' });
+                res.status(400).json({ error: 'Token/Secret not configured. Please deploy config node first.' });
                 return;
             }
             // デバイス一覧を取得

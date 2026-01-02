@@ -149,7 +149,7 @@ export function registerSwitchBotDeviceStatusNode(RED: NodeAPI): void {
       if (!token || !secret) {
         res.status(400).json({
           ok: false,
-          message: 'SwitchBot認証情報を先に追加・デプロイしてから取得してください',
+          message: 'Please add and deploy SwitchBot credentials first',
         });
         return;
       }
@@ -213,7 +213,7 @@ export function registerSwitchBotDeviceStatusNode(RED: NodeAPI): void {
           if (!secret) secret = process.env.SWITCHBOT_SECRET || '';
 
           if (!token || !secret || !deviceId) {
-            throw new Error('Token/Secret/DeviceIDが設定されていません');
+            throw new Error('Token/Secret/DeviceID not configured');
           }
 
           node.status({ fill: 'blue', shape: 'dot', text: 'requesting...' });

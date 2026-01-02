@@ -1,35 +1,34 @@
 <!-- SwitchBot Device Command Node UI -->
-<!-- Progressive Disclosure パターンで再設計 -->
 
 <script type="text/html" data-template-name="switchbot-device-command">
-    <!-- ❶ 認証セクション -->
+    <!-- Account Section -->
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> 名前</label>
-        <input type="text" id="node-input-name" placeholder="任意の名前">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Optional name">
     </div>
 
     <div class="form-row">
-        <label for="node-input-account"><i class="fa fa-key"></i> 認証</label>
+        <label for="node-input-account"><i class="fa fa-key"></i> Account</label>
         <input type="text" id="node-input-account">
     </div>
 
     <hr>
 
-    <!-- ❷ デバイス選択セクション -->
+    <!-- Device Selection -->
     <div class="form-row">
-        <label><i class="fa fa-microchip"></i> デバイス</label>
+        <label><i class="fa fa-microchip"></i> Device</label>
         <div style="display: inline-flex; align-items: center; width: 70%;">
             <button type="button" id="switchbot-cmd-refresh" class="red-ui-button" 
-                    style="padding: 4px 8px; margin-right: 6px;" title="デバイス一覧を更新">
+                    style="padding: 4px 8px; margin-right: 6px;" title="Refresh device list">
                 <i class="fa fa-refresh"></i>
             </button>
             <select id="switchbot-cmd-device-select" style="flex: 1;">
-                <option value="">(認証設定後、🔄で取得)</option>
+                <option value="">(Set account, then click 🔄)</option>
             </select>
         </div>
     </div>
 
-    <!-- デバイス情報（選択後に表示） -->
+    <!-- Device Info (shown after selection) -->
     <div class="form-row" id="switchbot-cmd-device-info" style="display: none;">
         <label></label>
         <span style="color: #666; font-size: 11px;">
@@ -40,37 +39,37 @@
         </span>
     </div>
 
-    <!-- ステータスメッセージ -->
+    <!-- Status Message -->
     <div class="form-row" id="switchbot-cmd-status" style="display: none;">
         <label></label>
         <span id="switchbot-cmd-status-text" style="font-size: 12px;"></span>
     </div>
 
-    <!-- 隠しフィールド -->
+    <!-- Hidden Fields -->
     <input type="hidden" id="node-input-deviceId">
     <input type="hidden" id="node-input-deviceType">
 
     <hr>
 
-    <!-- ❸ コマンド設定セクション（対応デバイス選択後に表示） -->
+    <!-- Command Section (shown after device selection) -->
     <div id="switchbot-cmd-command-section" style="display: none;">
         <div class="form-row">
-            <label for="node-input-command"><i class="fa fa-terminal"></i> コマンド</label>
+            <label for="node-input-command"><i class="fa fa-terminal"></i> Command</label>
             <select id="node-input-command" style="width: 70%;"></select>
         </div>
 
-        <!-- カスタムコマンド入力（必要時のみ表示） -->
+        <!-- Custom Command Input (shown when needed) -->
         <div class="form-row" id="switchbot-cmd-custom-row" style="display: none;">
-            <label for="node-input-customCommand"><i class="fa fa-keyboard-o"></i> カスタム</label>
-            <input type="text" id="node-input-customCommand" placeholder="コマンド名を入力" style="width: 70%;">
+            <label for="node-input-customCommand"><i class="fa fa-keyboard-o"></i> Custom</label>
+            <input type="text" id="node-input-customCommand" placeholder="Command name" style="width: 70%;">
         </div>
 
         <div class="form-row">
-            <label for="node-input-parameter"><i class="fa fa-sliders"></i> パラメータ</label>
+            <label for="node-input-parameter"><i class="fa fa-sliders"></i> Parameter</label>
             <input type="text" id="node-input-parameter" placeholder="default" style="width: 70%;">
         </div>
 
-        <!-- パラメータヒント -->
+        <!-- Parameter Hint -->
         <div class="form-row" id="switchbot-cmd-param-hint" style="display: none;">
             <label></label>
             <div id="switchbot-cmd-param-hint-text" 
@@ -79,186 +78,186 @@
         </div>
 
         <div class="form-row">
-            <label for="node-input-commandType"><i class="fa fa-cog"></i> タイプ</label>
+            <label for="node-input-commandType"><i class="fa fa-cog"></i> Type</label>
             <select id="node-input-commandType" style="width: 70%;">
-                <option value="command">command（標準コマンド）</option>
-                <option value="customize">customize（カスタムボタン）</option>
+                <option value="command">command (standard)</option>
+                <option value="customize">customize (custom button)</option>
             </select>
         </div>
     </div>
 
-    <!-- 非対応デバイスメッセージ -->
+    <!-- Unsupported Device Message -->
     <div id="switchbot-cmd-unsupported" style="display: none;">
         <div class="form-row">
             <label></label>
             <div style="color: #888; background: #fff8e1; padding: 12px; border-radius: 4px; border-left: 3px solid #ffc107; width: 70%; box-sizing: border-box;">
                 <i class="fa fa-info-circle"></i> 
-                <strong>このデバイスはコマンド送信に対応していません。</strong><br>
-                <span style="font-size: 11px;">ステータス取得には「SwitchBot Status」ノードを使用してください。</span>
+                <strong>This device does not support commands.</strong><br>
+                <span style="font-size: 11px;">Use "SwitchBot Status" node to get status.</span>
             </div>
         </div>
     </div>
 
-    <!-- デバイス未選択メッセージ -->
+    <!-- Empty State Message -->
     <div id="switchbot-cmd-empty" style="display: block;">
         <div class="form-row">
             <label></label>
             <div style="color: #888; font-size: 12px;">
-                <i class="fa fa-arrow-up"></i> デバイスを選択するとコマンド設定が表示されます
+                <i class="fa fa-arrow-up"></i> Select a device to see command options
             </div>
         </div>
     </div>
 </script>
 
-<!-- ヘルプテキスト -->
+<!-- Help Text -->
 <script type="text/html" data-help-name="switchbot-device-command">
-    <p>SwitchBotデバイスにコマンドを送信します。</p>
+    <p>Send commands to SwitchBot devices.</p>
 
-    <h3>使い方</h3>
+    <h3>Usage</h3>
     <ol>
-        <li>認証情報（SwitchBot API）を設定</li>
-        <li>🔄ボタンでデバイス一覧を取得</li>
-        <li>デバイスを選択</li>
-        <li>コマンドとパラメータを設定</li>
+        <li>Configure SwitchBot API credentials</li>
+        <li>Click 🔄 to fetch device list</li>
+        <li>Select a device</li>
+        <li>Set command and parameters</li>
     </ol>
 
-    <h3>動的入力</h3>
-    <p><code>msg.payload</code>でコマンドを動的に指定できます：</p>
+    <h3>Dynamic Input</h3>
+    <p>You can specify commands via <code>msg.payload</code>:</p>
     <pre>{
   "deviceId": "DEVICE_ID",
   "command": "turnOn",
   "parameter": "default"
 }</pre>
 
-    <h3>エアコン制御</h3>
-    <p>コマンド: <code>setAll</code></p>
-    <p>パラメータ: <code>温度,モード,風量,電源</code></p>
+    <h3>Air Conditioner</h3>
+    <p>Command: <code>setAll</code></p>
+    <p>Parameter: <code>temperature,mode,fanSpeed,power</code></p>
     <ul>
-        <li>例: <code>26,2,1,on</code> → 26℃、冷房、風量自動、ON</li>
-        <li>モード: 1=自動, 2=冷房, 3=除湿, 4=送風, 5=暖房</li>
-        <li>風量: 1=自動, 2=弱, 3=中, 4=強</li>
+        <li>Example: <code>26,2,1,on</code> → 26°C, cooling, auto fan, ON</li>
+        <li>Mode: 1=auto, 2=cool, 3=dry, 4=fan, 5=heat</li>
+        <li>Fan: 1=auto, 2=low, 3=medium, 4=high</li>
     </ul>
 </script>
 
-<!-- ノード登録 -->
+<!-- Node Registration -->
 <script type="text/javascript">
 (function() {
-    // デバイスタイプ → コマンド定義
+    // Device type → Command definitions
     var DEVICE_COMMANDS = {
-        // 物理デバイス
+        // Physical devices
         'Bot': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'press', label: '押す', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'press', label: 'Press', param: 'default' }
         ],
         'Plug': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'toggle', label: '切り替え', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'toggle', label: 'Toggle', param: 'default' }
         ],
         'Plug Mini (JP)': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'toggle', label: '切り替え', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'toggle', label: 'Toggle', param: 'default' }
         ],
         'Plug Mini (US)': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'toggle', label: '切り替え', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'toggle', label: 'Toggle', param: 'default' }
         ],
         'Curtain': [
-            { value: 'turnOn', label: '開く', param: 'default' },
-            { value: 'turnOff', label: '閉じる', param: 'default' },
-            { value: 'setPosition', label: '位置を指定', param: '0,ff,50', hint: '形式: index,mode,position (0~100)' },
-            { value: 'pause', label: '一時停止', param: 'default' }
+            { value: 'turnOn', label: 'Open', param: 'default' },
+            { value: 'turnOff', label: 'Close', param: 'default' },
+            { value: 'setPosition', label: 'Set Position', param: '0,ff,50', hint: 'Format: index,mode,position (0~100)' },
+            { value: 'pause', label: 'Pause', param: 'default' }
         ],
         'Curtain3': [
-            { value: 'turnOn', label: '開く', param: 'default' },
-            { value: 'turnOff', label: '閉じる', param: 'default' },
-            { value: 'setPosition', label: '位置を指定', param: '0,ff,50', hint: '形式: index,mode,position (0~100)' },
-            { value: 'pause', label: '一時停止', param: 'default' }
+            { value: 'turnOn', label: 'Open', param: 'default' },
+            { value: 'turnOff', label: 'Close', param: 'default' },
+            { value: 'setPosition', label: 'Set Position', param: '0,ff,50', hint: 'Format: index,mode,position (0~100)' },
+            { value: 'pause', label: 'Pause', param: 'default' }
         ],
         'Lock': [
-            { value: 'lock', label: '施錠', param: 'default' },
-            { value: 'unlock', label: '解錠', param: 'default' }
+            { value: 'lock', label: 'Lock', param: 'default' },
+            { value: 'unlock', label: 'Unlock', param: 'default' }
         ],
         'Lock Pro': [
-            { value: 'lock', label: '施錠', param: 'default' },
-            { value: 'unlock', label: '解錠', param: 'default' }
+            { value: 'lock', label: 'Lock', param: 'default' },
+            { value: 'unlock', label: 'Unlock', param: 'default' }
         ],
         'Color Bulb': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'toggle', label: '切り替え', param: 'default' },
-            { value: 'setBrightness', label: '明るさ', param: '50', hint: '1~100 の数値' },
-            { value: 'setColor', label: '色', param: '255:100:50', hint: '形式: R:G:B (各0~255)' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'toggle', label: 'Toggle', param: 'default' },
+            { value: 'setBrightness', label: 'Set Brightness', param: '50', hint: 'Value: 1~100' },
+            { value: 'setColor', label: 'Set Color', param: '255:100:50', hint: 'Format: R:G:B (0~255 each)' }
         ],
         'Strip Light': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'toggle', label: '切り替え', param: 'default' },
-            { value: 'setBrightness', label: '明るさ', param: '50', hint: '1~100 の数値' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'toggle', label: 'Toggle', param: 'default' },
+            { value: 'setBrightness', label: 'Set Brightness', param: '50', hint: 'Value: 1~100' }
         ],
         'Humidifier': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'setMode', label: 'モード設定', param: 'auto', hint: 'auto / 101~103 / humidifierDefault' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'setMode', label: 'Set Mode', param: 'auto', hint: 'auto / 101~103 / humidifierDefault' }
         ],
-        // 赤外線リモコン
+        // Infrared remotes
         'Air Conditioner': [
-            { value: 'setAll', label: '全設定', param: '26,2,1,on', 
-              hint: '形式: 温度,モード,風量,電源<br>モード: 1=自動, 2=冷房, 3=除湿, 4=送風, 5=暖房<br>風量: 1=自動, 2=弱, 3=中, 4=強<br>電源: on / off' },
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' }
+            { value: 'setAll', label: 'Set All', param: '26,2,1,on', 
+              hint: 'Format: temp,mode,fan,power<br>Mode: 1=auto, 2=cool, 3=dry, 4=fan, 5=heat<br>Fan: 1=auto, 2=low, 3=mid, 4=high<br>Power: on / off' },
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' }
         ],
         'TV': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'SetChannel', label: 'チャンネル', param: '1', hint: 'チャンネル番号' },
-            { value: 'volumeAdd', label: '音量 +', param: 'default' },
-            { value: 'volumeSub', label: '音量 -', param: 'default' },
-            { value: 'channelAdd', label: 'CH +', param: 'default' },
-            { value: 'channelSub', label: 'CH -', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'SetChannel', label: 'Set Channel', param: '1', hint: 'Channel number' },
+            { value: 'volumeAdd', label: 'Volume +', param: 'default' },
+            { value: 'volumeSub', label: 'Volume -', param: 'default' },
+            { value: 'channelAdd', label: 'Channel +', param: 'default' },
+            { value: 'channelSub', label: 'Channel -', param: 'default' }
         ],
         'Light': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'brightnessUp', label: '明るく', param: 'default' },
-            { value: 'brightnessDown', label: '暗く', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'brightnessUp', label: 'Brightness Up', param: 'default' },
+            { value: 'brightnessDown', label: 'Brightness Down', param: 'default' }
         ],
         'Fan': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: 'swing', label: '首振り', param: 'default' },
-            { value: 'lowSpeed', label: '風量: 弱', param: 'default' },
-            { value: 'middleSpeed', label: '風量: 中', param: 'default' },
-            { value: 'highSpeed', label: '風量: 強', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: 'swing', label: 'Swing', param: 'default' },
+            { value: 'lowSpeed', label: 'Low Speed', param: 'default' },
+            { value: 'middleSpeed', label: 'Medium Speed', param: 'default' },
+            { value: 'highSpeed', label: 'High Speed', param: 'default' }
         ],
-        // その他IRデバイス
+        // Other IR devices
         '_ir_default': [
-            { value: 'turnOn', label: 'ON にする', param: 'default' },
-            { value: 'turnOff', label: 'OFF にする', param: 'default' },
-            { value: '_custom', label: 'カスタムコマンド...', param: 'default' }
+            { value: 'turnOn', label: 'Turn On', param: 'default' },
+            { value: 'turnOff', label: 'Turn Off', param: 'default' },
+            { value: '_custom', label: 'Custom Command...', param: 'default' }
         ],
-        // コマンド非対応
+        // Unsupported
         '_unsupported': []
     };
 
-    // コマンド非対応デバイスタイプ（センサー系・Hub系・読み取り専用）
+    // Unsupported device types (sensors, hubs, read-only)
     var UNSUPPORTED_TYPES = [
-        // 温湿度計・環境センサー
+        // Meters / Environmental sensors
         'Meter', 'Meter Plus', 'MeterPlus', 'MeterPro', 'Meter Pro',
         'MeterPro(CO2)', 'Meter Pro CO2', 'Outdoor Meter', 'WoIOSensor',
-        // 人感・開閉・水漏れセンサー
+        // Motion / Contact / Water sensors
         'Motion Sensor', 'Presence Sensor', 'Contact Sensor', 
         'Water Leak Detector', 'Water Detector',
-        // Hub系（IRリモコンの親機、制御対象ではない）
+        // Hubs (IR remote parent, not controllable)
         'Hub', 'Hub Plus', 'Hub Mini', 'Hub 2', 'Hub 3',
-        // リモコン・キーパッド（読み取り専用）
+        // Remotes / Keypads (read-only)
         'Remote', 'Keypad', 'Keypad Touch', 'Keypad Vision', 'Keypad Vision Pro',
-        // カメラ系（別途ストリーミングAPI）
+        // Cameras (separate streaming API)
         'Indoor Cam', 'Pan/Tilt Cam', 'Pan/Tilt Cam 2K',
-        // その他読み取り専用
+        // Other read-only
         'Video Doorbell'
     ];
 
@@ -272,11 +271,11 @@
         if (isInfrared) {
             return DEVICE_COMMANDS['_ir_default'];
         }
-        return DEVICE_COMMANDS['_ir_default']; // 未知のデバイスはIRデフォルト
+        return DEVICE_COMMANDS['_ir_default'];
     }
 
     RED.nodes.registerType('switchbot-device-command', {
-        category: 'SwitchBot Custom',
+        category: 'SwitchBot',
         color: '#FF6B6B',
         defaults: {
             name: { value: '' },
@@ -302,7 +301,6 @@
             var node = this;
             var deviceCache = [];
 
-            // UI要素
             var $deviceSelect = $('#switchbot-cmd-device-select');
             var $commandSelect = $('#node-input-command');
             var $paramInput = $('#node-input-parameter');
@@ -316,7 +314,6 @@
             var $paramHint = $('#switchbot-cmd-param-hint');
             var $paramHintText = $('#switchbot-cmd-param-hint-text');
 
-            // ステータス表示
             function showStatus(msg, isError) {
                 $statusText.text(msg).css('color', isError ? '#c00' : '#080');
                 $statusDiv.show();
@@ -325,7 +322,6 @@
                 $statusDiv.hide();
             }
 
-            // セクション表示制御
             function showCommandSection() {
                 $commandSection.show();
                 $unsupportedMsg.hide();
@@ -342,7 +338,6 @@
                 $emptyMsg.show();
             }
 
-            // コマンド選択肢を更新
             function updateCommandOptions(deviceType, isInfrared) {
                 var commands = getCommandsForDevice(deviceType, isInfrared);
                 var currentVal = node.command || '';
@@ -363,7 +358,6 @@
                     $commandSelect.append($opt);
                 });
 
-                // 保存値を復元
                 if (currentVal && $commandSelect.find('option[value="' + currentVal + '"]').length > 0) {
                     $commandSelect.val(currentVal);
                 }
@@ -372,7 +366,6 @@
                 updateCustomRow();
             }
 
-            // パラメータヒント更新
             function updateParamHint() {
                 var $selected = $commandSelect.find(':selected');
                 var hint = $selected.data('hint');
@@ -384,7 +377,6 @@
                 }
             }
 
-            // カスタムコマンド行の表示制御
             function updateCustomRow() {
                 if ($commandSelect.val() === '_custom') {
                     $customRow.show();
@@ -393,14 +385,12 @@
                 }
             }
 
-            // デバイス情報表示
             function showDeviceInfo(deviceId, deviceType) {
                 $('#switchbot-cmd-device-id-display').text(deviceId);
                 $('#switchbot-cmd-device-type-display').text(deviceType);
                 $deviceInfo.show();
             }
 
-            // デバイス選択時
             $deviceSelect.change(function() {
                 var val = $(this).val();
                 if (!val) {
@@ -423,12 +413,10 @@
                 hideStatus();
             });
 
-            // コマンド変更時
             $commandSelect.change(function() {
                 updateParamHint();
                 updateCustomRow();
 
-                // デフォルトパラメータをセット（空の場合のみ）
                 var $selected = $(this).find(':selected');
                 var defaultParam = $selected.data('param');
                 if (!$paramInput.val() || $paramInput.val() === 'default') {
@@ -436,15 +424,14 @@
                 }
             });
 
-            // デバイス取得ボタン
             $('#switchbot-cmd-refresh').click(function() {
                 var accountId = $('#node-input-account').val() || '';
                 if (!accountId) {
-                    showStatus('先に認証情報を設定してください', true);
+                    showStatus('Please configure account first', true);
                     return;
                 }
 
-                showStatus('デバイス一覧を取得中...', false);
+                showStatus('Fetching devices...', false);
                 var adminRoot = (RED.settings.httpAdminRoot || '').replace(/\/$/, '');
 
                 $.ajax({
@@ -453,11 +440,11 @@
                     contentType: 'application/json',
                     data: JSON.stringify({ accountId: accountId }),
                     success: function(data) {
-                        $deviceSelect.empty().append('<option value="">(デバイスを選択)</option>');
+                        $deviceSelect.empty().append('<option value="">(Select a device)</option>');
                         deviceCache = data.devices || [];
 
                         if (deviceCache.length === 0) {
-                            showStatus('デバイスが見つかりませんでした', true);
+                            showStatus('No devices found', true);
                             return;
                         }
 
@@ -471,10 +458,9 @@
                             $deviceSelect.append($('<option>').val(val).text(label));
                         });
 
-                        showStatus(deviceCache.length + ' 件のデバイスを取得しました', false);
+                        showStatus(deviceCache.length + ' device(s) found', false);
                         setTimeout(hideStatus, 2000);
 
-                        // 既存の選択を復元
                         if (node.deviceId) {
                             var match = deviceCache.find(function(d) { return d.deviceId === node.deviceId; });
                             if (match) {
@@ -485,7 +471,7 @@
                         }
                     },
                     error: function(xhr) {
-                        var msg = 'デバイスの取得に失敗しました';
+                        var msg = 'Failed to fetch devices';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             msg = xhr.responseJSON.error;
                         }
@@ -494,12 +480,11 @@
                 });
             });
 
-            // 初期化: 既存値がある場合は表示
             if (node.deviceId && node.deviceType) {
                 showDeviceInfo(node.deviceId, node.deviceType);
                 updateCommandOptions(node.deviceType, false);
                 $deviceSelect.append($('<option>').val(node.deviceId + '|' + node.deviceType + '|false')
-                    .text('(保存済み: ' + node.deviceId.substring(0, 8) + '...)').prop('selected', true));
+                    .text('(Saved: ' + node.deviceId.substring(0, 8) + '...)').prop('selected', true));
             }
         },
         oneditsave: function() {
