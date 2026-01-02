@@ -7,15 +7,15 @@ SwitchBot device control and status nodes for Node-RED.
 
 ## Features
 
-- 📊 **SB Status** - Get device status (temperature, humidity, CO2, motion detection, etc.)
-- 🎮 **SB Command** - Send commands to devices (turn on/off, set temperature, etc.)
+- 📊 **SwitchBot Status** - Get device status (temperature, humidity, CO2, motion detection, etc.)
+- 🎮 **SwitchBot Command** - Send commands to devices (turn on/off, set temperature, etc.)
 - 🔐 **Shared Credentials** - Configure API credentials once, use across all nodes
 - 📋 **Device Picker** - Select devices from a dropdown list (no manual ID entry needed)
 - 🔄 **Dynamic Commands** - Command options change based on selected device type
 
 ## Supported Devices
 
-### Status (SB Status node)
+### Status (SwitchBot Status node)
 | Device Type | Available Data |
 |-------------|----------------|
 | Presence Sensor / Motion Sensor | Motion detection, light level |
@@ -25,7 +25,7 @@ SwitchBot device control and status nodes for Node-RED.
 | Robot Vacuum | Working status, online status |
 | Plug / Plug Mini | Power, voltage, current |
 
-### Commands (SB Command node)
+### Commands (SwitchBot Command node)
 | Device Type | Available Commands |
 |-------------|-------------------|
 | Bot | turnOn, turnOff, press |
@@ -79,26 +79,26 @@ Then restart Node-RED.
 
 1. Click the 🔄 button to fetch your device list
 2. Select a device from the dropdown
-3. For SB Command: available commands will appear based on device type
+3. For SwitchBot Command: available commands will appear based on device type
 
 ## Usage Examples
 
 ### Get Sensor Data Every 5 Minutes
 
 ```
-[Inject (5min interval)] → [SB Status] → [Debug]
+[Inject (5min interval)] → [SwitchBot Status] → [Debug]
 ```
 
 ### Turn On Air Conditioner
 
 ```
-[Inject] → [SB Command (setAll: 26,1,1,on)] → [Debug]
+[Inject] → [SwitchBot Command (setAll)] → [Debug]
 ```
 
 ### Motion-Triggered Automation
 
 ```
-[Inject (30s interval)] → [SB Status (Presence Sensor)] → [Switch (msg.payload.detected)] → [Your Action]
+[Inject (30s interval)] → [SwitchBot Status] → [Switch (msg.payload.detected)] → [Your Action]
 ```
 
 ## API Rate Limits
