@@ -1,6 +1,6 @@
-# node-red-switchbot
+# node-red-contrib-switchbot-api
 
-[![npm version](https://badge.fury.io/js/node-red-switchbot.svg)](https://www.npmjs.com/package/node-red-switchbot)
+[![npm version](https://badge.fury.io/js/node-red-contrib-switchbot-api.svg)](https://www.npmjs.com/package/node-red-contrib-switchbot-api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 SwitchBot device control and status nodes for Node-RED.
@@ -45,14 +45,14 @@ SwitchBot device control and status nodes for Node-RED.
 
 1. Open Node-RED
 2. Go to **Menu → Manage palette → Install**
-3. Search for `node-red-switchbot`
+3. Search for `node-red-contrib-switchbot-api`
 4. Click **Install**
 
 ### Via npm
 
 ```bash
 cd ~/.node-red
-npm install node-red-switchbot
+npm install node-red-contrib-switchbot-api
 ```
 
 Then restart Node-RED.
