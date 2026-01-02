@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-switchbot-api",
+  "name": "node-red-contrib-switchbot-openapi",
   "version": "1.0.0",
   "description": "SwitchBot device control and status nodes for Node-RED",
   "main": "dist/index.js",
